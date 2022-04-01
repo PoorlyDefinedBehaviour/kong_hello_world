@@ -1,9 +1,26 @@
 _format_version: "1.1"
 _transform: true
 
+routes:
+  - name: mocking
+    service: example_service
+    regex_priority: 0
+    paths:
+      - /mock
+    strip_path: true
+    preserve_host: false
+    protocols:
+      - http
+      - https
+consumers:
+  - custom_id: consumer_a
+    username: consumer_a
+    keyauth_credentials:
+      - key: secret_key
+
 services:
   - name: example_service
-    host: mockbin.org
+    host: example_upstream
     port: 80
     protocol: http
     read_timeout: 10000
@@ -24,20 +41,10 @@ services:
           cache_ttl: 30
           strategy: memory
 
-consumers:
-  - custom_id: consumer_a
-    username: consumer_a
-    keyauth_credentials:
-      - key: secret_key
-
-routes:
-  - name: mocking
-    service: example_service
-    regex_priority: 0
-    paths:
-      - /mock
-    strip_path: true
-    preserve_host: false
-    protocols:
-      - http
-      - https
+upstreams:
+  - name: example_upstream
+    targets:
+      - target: httpbin.org:80
+        weight: 100
+      - target: mockbin.org:80
+        weight: 100
