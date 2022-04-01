@@ -1,0 +1,43 @@
+_format_version: "1.1"
+_transform: true
+
+services:
+  - name: example_service
+    host: mockbin.org
+    port: 80
+    protocol: http
+    read_timeout: 10000
+    retries: 5
+    write_timeout: 10000
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 5
+          policy: local
+
+      - name: key-auth
+
+      - name: proxy-cache
+        config:
+          content_type:
+            - "application/json; charset=utf-8"
+          cache_ttl: 30
+          strategy: memory
+
+consumers:
+  - custom_id: consumer_a
+    username: consumer_a
+    keyauth_credentials:
+      - key: secret_key
+
+routes:
+  - name: mocking
+    service: example_service
+    regex_priority: 0
+    paths:
+      - /mock
+    strip_path: true
+    preserve_host: false
+    protocols:
+      - http
+      - https
